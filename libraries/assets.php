@@ -74,10 +74,11 @@ class Assets {
 	
 	/**
 	 * Display CSS tags
-	 * @param  array  $files
+	 * @param  array   $files
+	 * @param  boolean $return_contents
 	 * @return string
 	 */
-	public static function css($files = null, $attributes = null)
+	public static function css($files = null, $attributes = null, $return_contents = false)
 	{
 		self::init();
 
@@ -96,7 +97,7 @@ class Assets {
 		if (self::$_enable_benchmark) self::$_ci->benchmark->mark("Assets::css()_end");
 
 		// Tags
-		return self::_generate_tags('css');
+		return self::_generate_tags('css', null, $return_contents);
 	}
 
 	
@@ -104,11 +105,12 @@ class Assets {
 	
 	/**
 	 * Display a group of CSS tags
-	 * @param  string $group
-	 * @param  array  $files
+	 * @param  string  $group
+	 * @param  array   $files
+	 * @param  boolean $return_contents
 	 * @return string
 	 */
-	public static function css_group($group = null, $files = null, $attributes = null)
+	public static function css_group($group = null, $files = null, $attributes = null, $return_contents = false)
 	{
 		self::$group = $group;
 
@@ -128,7 +130,7 @@ class Assets {
 		if (self::$_enable_benchmark) self::$_ci->benchmark->mark("Assets::css_group(".$group.")_end");
 
 		// Tags
-		return self::_generate_tags('css');
+		return self::_generate_tags('css', null, $return_contents);
 	}
 
 	
@@ -136,10 +138,11 @@ class Assets {
 	
 	/**
 	 * Display JS tags
-	 * @param  array  $files
+	 * @param  array   $files
+	 * @param  boolean $return_contents
 	 * @return string
 	 */
-	public static function js($files = null)
+	public static function js($files = null, $return_contents = false)
 	{
 		self::$group = null;
 
@@ -159,7 +162,7 @@ class Assets {
 		if (self::$_enable_benchmark) self::$_ci->benchmark->mark("Assets::js()_end");
 
 		// Tags
-		return self::_generate_tags('js');
+		return self::_generate_tags('js', null, $return_contents);
 	}
 
 	
@@ -167,11 +170,12 @@ class Assets {
 	
 	/**
 	 * Display a group of JS tags
-	 * @param  string $group
-	 * @param  array  $files
+	 * @param  string  $group
+	 * @param  array   $files
+	 * @param  boolean $return_contents
 	 * @return string
 	 */
-	public static function js_group($group = null, $files = null)
+	public static function js_group($group = null, $files = null, $return_contents = false)
 	{
 		self::$group = $group;
 
@@ -191,7 +195,7 @@ class Assets {
 		if (self::$_enable_benchmark) self::$_ci->benchmark->mark("Assets::js_group(".$group.")_end");
 
 		// Tags
-		return self::_generate_tags('js');
+		return self::_generate_tags('js', null, $return_contents);
 	}
 
 	
@@ -815,9 +819,10 @@ class Assets {
 	 * Generate and output HTML tags
 	 * @param  string  $type
 	 * @param  boolean $echo
+	 * @param  boolean $return_contents
 	 * @return string
 	 */
-	private static function _generate_tags($type = null, $echo = true)
+	private static function _generate_tags($type = null, $echo = true, $return_contents = false)
 	{
 		if ( ! self::$group) $group = self::$default_group[$type];
 		else                 $group = self::$group;
@@ -854,10 +859,15 @@ class Assets {
 
 			// File and tag
 			$file = self::$cache_url.'/'.$assets_group['cache_file_name'];
-			$tag  = self::tag($file, $type, false, $attributes);
 
-			if ($echo) echo   $tag;
-			else       return $tag;
+			if($return_contents) {
+				return file_get_contents($file);
+			} else {
+				$tag  = self::tag($file, $type, false, $attributes);
+
+				if ($echo) echo   $tag;
+				else       return $tag;
+			}
 		}
 	}
 
